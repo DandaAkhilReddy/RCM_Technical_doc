@@ -718,33 +718,82 @@
 
                 <div class="pain-point-card">
                     <div class="pain-point-header">
-                        <div class="pain-point-title">7. Manual Duplicate Detection & Prevention</div>
+                        <div class="pain-point-title">7. Operational Challenges – Duplicate Patients & Encounter Assignment</div>
                         <span class="severity-badge severity-high">HIGH</span>
                     </div>
                     <div class="pain-point-details">
                         <div class="detail-row">
-                            <div class="detail-label">Problem:</div>
-                            <div class="detail-value">No automated duplicate detection between Meditech census import and provider charge entry in IngeniousMed. Staff manually identifies and merges duplicates.</div>
+                            <div class="detail-label">Problem Overview:</div>
+                            <div class="detail-value">Two critical operational issues create billing delays and duplicate entries: (1) Duplicate patient records and (2) IngeniousMed's 1-day encounter assignment delay.</div>
                         </div>
+
                         <div class="detail-row">
-                            <div class="detail-label">Impact:</div>
+                            <div class="detail-label">Issue 1: Duplicate Patient Records</div>
                             <div class="detail-value">
+                                <strong>Root Causes:</strong>
+                                <ul class="impact-list">
+                                    <li><strong>File Feed Issues:</strong> Automated patient feed occasionally creates duplicate records during ingestion from Meditech</li>
+                                    <li><strong>User Error During Rounds:</strong> Doctors searching for patients during busy rounds cannot find them quickly in the system (search limitations), so they manually create new patient records, resulting in unintended duplicates</li>
+                                </ul>
+                                <strong>Impact:</strong>
                                 <ul class="impact-list">
                                     <li>Duplicate patient entries created frequently</li>
                                     <li>Charges posted to wrong patient records</li>
                                     <li>Claim rejections due to duplicate submissions</li>
-                                    <li>Staff time consumed on cleanup activities</li>
+                                    <li>Significant staff time consumed on cleanup activities</li>
                                     <li>Billing delays while resolving duplicates</li>
                                 </ul>
                             </div>
                         </div>
+
                         <div class="detail-row">
-                            <div class="detail-label">Root Cause:</div>
-                            <div class="detail-value">24-hour sync delay + no real-time matching logic + manual provider entry</div>
+                            <div class="detail-label">Issue 2: IngeniousMed Encounter Assignment Delay</div>
+                            <div class="detail-value">
+                                <strong>Background:</strong><br>
+                                Historically, IngeniousMed allowed <strong>same-day encounter assignment</strong>. For example, on the 14th, data analysts (Reshma's team) could assign all patients admitted on the 14th, and doctors would see the full list for the current day.
+                                <br><br>
+                                <strong>System Update Impact:</strong><br>
+                                IngeniousMed introduced an update that caused a <strong>1-day delay in encounter assignment</strong>.
+                                <br><br>
+                                <strong>Current Behavior:</strong>
+                                <ul class="impact-list">
+                                    <li>On any given day (e.g., 14th), analysts can <strong>only assign encounters up to the previous day (13th)</strong></li>
+                                    <li>Today's patients do not populate in the assignment queue until the next day</li>
+                                    <li><strong>Same-day billing only works if doctors manually enter charges the same day</strong></li>
+                                    <li>If doctors do NOT enter charges on admission day, Reshma's team cannot assign those encounters until the following day</li>
+                                </ul>
+                                <strong>Business Impact:</strong>
+                                <ul class="impact-list">
+                                    <li>Minimum 24-hour delay in encounter assignment workflow</li>
+                                    <li>Dependency on doctors entering charges same-day (not always happening)</li>
+                                    <li>Billing cycle extended by 1-2 days for all encounters</li>
+                                    <li>Lost revenue acceleration opportunity</li>
+                                    <li>Increased AR days and cash flow delays</li>
+                                </ul>
+                            </div>
                         </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label">Combined Root Causes:</div>
+                            <div class="detail-value">24-hour sync delay + IngeniousMed system update + no real-time matching logic + manual provider entry + search usability issues</div>
+                        </div>
+
                         <div class="detail-row">
                             <div class="detail-label">Financial Risk:</div>
-                            <div class="detail-value">$20,000 - $35,000 annual impact</div>
+                            <div class="detail-value">$50,000 - $75,000 annual impact (labor for duplicate cleanup + billing delays + extended AR days)</div>
+                        </div>
+
+                        <div class="detail-row">
+                            <div class="detail-label">Recommended Solutions:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li><strong>Duplicate Prevention:</strong> Implement automated duplicate detection logic with fuzzy matching (name, DOB, MRN)</li>
+                                    <li><strong>Improve Search UX:</strong> Enhance IngeniousMed search functionality to help doctors find patients faster during rounds</li>
+                                    <li><strong>Encounter Assignment:</strong> Work with IngeniousMed vendor to restore same-day assignment capability or implement workaround workflow</li>
+                                    <li><strong>Real-Time Integration:</strong> Replace file-based Meditech sync with real-time HL7 integration to eliminate 24-hour lag</li>
+                                    <li><strong>Training:</strong> Educate providers on proper patient search techniques to reduce user-created duplicates</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>

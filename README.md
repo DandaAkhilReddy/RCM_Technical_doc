@@ -68,10 +68,30 @@ This documentation provides a complete technical analysis of the current RCM inf
 
 This is a static HTML website that can be:
 - Hosted on GitHub Pages
+- Deployed to Netlify
 - Deployed to any web server
 - Opened directly in a browser
 
-**Live Site**: https://dandaakhilreddy.github.io/RCM_Technical_doc/
+### Live Deployments
+
+**GitHub Pages**: https://dandaakhilreddy.github.io/RCM_Technical_doc/
+
+**Netlify**: Coming soon (after initial deployment)
+
+### Deploy to Netlify
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/DandaAkhilReddy/RCM_Technical_doc)
+
+**Manual Deployment:**
+1. Install Netlify CLI: `npm install -g netlify-cli`
+2. Login: `netlify login`
+3. Deploy: `netlify deploy --prod`
+
+The `netlify.toml` configuration file is included with:
+- Automated deployment settings
+- Security headers
+- Cache control optimization
+- Lighthouse performance plugin
 
 ## Quality Assurance
 
