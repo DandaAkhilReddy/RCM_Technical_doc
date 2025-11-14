@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="System Architecture - RCM Technical Documentation">
+    <title>System Architecture | RCM Technical Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e40af;
+            --secondary: #3730a3;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --info: #0891b2;
+            --dark: #111827;
+            --light: #f9fafb;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+
+        /* Mobile Navigation */
+        .mobile-header {
+            display: none;
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mobile-header h1 {
+            font-size: 1.2rem;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            float: right;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            background: var(--primary);
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .nav-section {
+            padding: 20px 0;
+        }
+
+        .nav-title {
+            padding: 10px 25px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 25px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .page-header .description {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        /* Architecture Diagram */
+        .architecture-flow {
+            padding: 25px;
+            background: var(--light);
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .flow-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            min-width: 800px;
+        }
+
+        .system-box {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            min-width: 140px;
+            flex-shrink: 0;
+        }
+
+        .system-box h4 {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .system-box .name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .system-box .type {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .clinical { border-color: var(--success); background: #f0fdf4; }
+        .billing { border-color: var(--primary); background: #eff6ff; }
+        .clearinghouse { border-color: var(--info); background: #f0f9ff; }
+        .financial { border-color: var(--danger); background: #fef2f2; }
+
+        .arrow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .arrow {
+            width: 50px;
+            height: 2px;
+            background: var(--border);
+            position: relative;
+        }
+
+        .arrow::after {
+            content: '→';
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            color: #6b7280;
+            font-size: 1.2rem;
+        }
+
+        .integration-badge {
+            font-size: 0.7rem;
+            background: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-weight: 600;
+        }
+
+        .delay-badge {
+            background: var(--warning);
+            color: white;
+            font-size: 0.65rem;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        /* Integration Table */
+        .integration-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            overflow-x: auto;
+            display: block;
+        }
+
+        .integration-table table {
+            width: 100%;
+            min-width: 600px;
+        }
+
+        .integration-table th {
+            background: var(--light);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .integration-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-api { background: #dbeafe; color: var(--primary); }
+        .status-file { background: #e0e7ff; color: var(--secondary); }
+        .status-none { background: #fee2e2; color: var(--danger); }
+        .status-edi { background: #dcfce7; color: var(--success); }
+
+        /* Alert Box */
+        .alert-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 60px;
+            }
+
+            .content-wrapper {
+                padding: 20px 15px;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .architecture-flow {
+                padding: 15px;
+            }
+
+            .flow-container {
+                min-width: auto;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .arrow-container {
+                transform: rotate(90deg);
+                margin: 20px 0;
+            }
+
+            .system-box {
+                width: 100%;
+            }
+        }
+
+        /* Overlay for mobile menu */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        <h1>System Architecture</h1>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" onclick="toggleMenu()"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1>RCM Technical Docs</h1>
+            <div class="subtitle">Page Management Associates</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Main</div>
+            <a href="index.html" class="nav-item">Dashboard</a>
+            <a href="overview.html" class="nav-item">Executive Overview</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Technical Documentation</div>
+            <a href="architecture.html" class="nav-item active">System Architecture</a>
+            <a href="inventory.html" class="nav-item">Software Inventory</a>
+            <a href="integrations.html" class="nav-item">Integration Methods</a>
+            <a href="data-flow.html" class="nav-item">Data Flow Analysis</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Operations</div>
+            <a href="reconciliation.html" class="nav-item">Reconciliation Process</a>
+            <a href="pain-points.html" class="nav-item">Pain Points & Gaps</a>
+            <a href="governance.html" class="nav-item">Data Governance</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Implementation</div>
+            <a href="recommendations.html" class="nav-item">2025 Recommendations</a>
+            <a href="roadmap.html" class="nav-item">Implementation Roadmap</a>
+            <a href="roi.html" class="nav-item">ROI Analysis</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>System Architecture</h1>
+                <div class="description">
+                    High-level platform architecture and data flows between clinical, billing, and financial systems
+                </div>
+            </div>
+
+            <!-- Data Flow Section -->
+            <div class="content-section">
+                <h2 class="section-title">High-Level Data Flow</h2>
+                
+                <div class="architecture-flow">
+                    <div class="flow-container">
+                        <div class="system-box clinical">
+                            <h4>CLINICAL</h4>
+                            <div class="name">Meditech</div>
+                            <div class="type">Hospital EHR</div>
+                            <div class="type">📍 On-Premise</div>
+                        </div>
+
+                        <div class="arrow-container">
+                            <div class="integration-badge">File Export</div>
+                            <div class="arrow"></div>
+                            <div class="delay-badge">24hr delay</div>
+                        </div>
+
+                        <div class="system-box billing">
+                            <h4>CHARGE CAPTURE</h4>
+                            <div class="name">IngeniousMed</div>
+                            <div class="type">Professional Charges</div>
+                            <div class="type">☁️ Cloud SaaS</div>
+                        </div>
+
+                        <div class="arrow-container">
+                            <div class="integration-badge">API</div>
+                            <div class="arrow"></div>
+                            <div style="font-size: 0.65rem; color: #6b7280;">Daily Sync</div>
+                        </div>
+
+                        <div class="system-box billing">
+                            <h4>BILLING</h4>
+                            <div class="name">AdvancedMD</div>
+                            <div class="type">Practice Mgmt</div>
+                            <div class="type">☁️ Cloud SaaS</div>
+                        </div>
+
+                        <div class="arrow-container">
+                            <div class="integration-badge">837 EDI</div>
+                            <div class="arrow"></div>
+                            <div style="font-size: 0.65rem; color: #6b7280;">Real-time</div>
+                        </div>
+
+                        <div class="system-box clearinghouse">
+                            <h4>CLEARINGHOUSE</h4>
+                            <div class="name">McKesson</div>
+                            <div class="type">RelayHealth</div>
+                            <div class="type">☁️ Cloud</div>
+                        </div>
+
+                        <div class="arrow-container">
+                            <div class="integration-badge">EDI</div>
+                            <div class="arrow"></div>
+                            <div style="font-size: 0.65rem; color: #6b7280;">Electronic</div>
+                        </div>
+
+                        <div class="system-box financial">
+                            <h4>FINANCIAL</h4>
+                            <div class="name">Bank/Payers</div>
+                            <div class="type">Payments</div>
+                            <div class="type">❌ No Integration</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Integration Methods Section -->
+            <div class="content-section">
+                <h2 class="section-title">Integration Methods Summary</h2>
+                
+                <div class="integration-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>From System</th>
+                                <th>To System</th>
+                                <th>Method</th>
+                                <th>Frequency</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Meditech</td>
+                                <td>IngeniousMed</td>
+                                <td><span class="status-badge status-file">File Export</span></td>
+                                <td>Daily (24hr lag)</td>
+                                <td>⚠️ Causes duplicates</td>
+                            </tr>
+                            <tr>
+                                <td>IngeniousMed</td>
+                                <td>AdvancedMD</td>
+                                <td><span class="status-badge status-api">API</span></td>
+                                <td>Daily scheduled</td>
+                                <td>✅ Functional</td>
+                            </tr>
+                            <tr>
+                                <td>AdvancedMD</td>
+                                <td>McKesson</td>
+                                <td><span class="status-badge status-edi">837 EDI</span></td>
+                                <td>Real-time</td>
+                                <td>✅ Functional</td>
+                            </tr>
+                            <tr>
+                                <td>McKesson</td>
+                                <td>AdvancedMD</td>
+                                <td><span class="status-badge status-edi">835 ERA</span></td>
+                                <td>As received</td>
+                                <td>✅ Functional</td>
+                            </tr>
+                            <tr>
+                                <td>Bank</td>
+                                <td>AdvancedMD</td>
+                                <td><span class="status-badge status-none">NONE</span></td>
+                                <td>Manual Excel</td>
+                                <td>❌ Critical Gap</td>
+                            </tr>
+                            <tr>
+                                <td>AdvancedMD</td>
+                                <td>EnableComp</td>
+                                <td><span class="status-badge status-file">SFTP</span></td>
+                                <td>120+ days AR</td>
+                                <td>⚠️ No visibility</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert-box alert-danger">
+                    <strong>⚠️ Critical Limitation:</strong> AdvancedMD does NOT support HL7 format, severely limiting integration capabilities with clinical systems and requiring manual workarounds for data exchange. This is a major barrier to automation and real-time data synchronization.
+                </div>
+            </div>
+
+            <!-- Deployment Architecture -->
+            <div class="content-section">
+                <h2 class="section-title">Deployment Architecture</h2>
+                
+                <ul style="line-height: 2; margin-left: 20px;">
+                    <li><strong>Cloud-Based Systems (70%):</strong> IngeniousMed, AdvancedMD, McKesson Clearinghouse</li>
+                    <li><strong>On-Premise Systems (20%):</strong> Meditech (Hospital data centers)</li>
+                    <li><strong>Manual Processes (10%):</strong> Bank reconciliation, Excel tracking, Portal access</li>
+                </ul>
+
+                <h3 style="margin-top: 25px; color: var(--primary);">Site-Specific Deployments</h3>
+                <ul style="line-height: 2; margin-left: 20px; margin-top: 15px;">
+                    <li>Each hospital maintains its own Meditech instance</li>
+                    <li>Census data pulled individually from each facility</li>
+                    <li>Some sites use direct Meditech reports</li>
+                    <li>One site provides census via secure messaging</li>
+                    <li>All consolidated in cloud-based IngeniousMed</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Close menu when clicking on a nav item on mobile
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const sidebar = document.querySelector('.sidebar');
+                    const overlay = document.querySelector('.overlay');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
