@@ -8,10 +8,25 @@ This documentation provides a complete technical analysis of the current RCM inf
 
 ## Contents
 
+### Main
 - **Dashboard** ([index.html](index.html)) - Overview and key metrics
+- **Executive Overview** ([overview.html](overview.html)) - High-level summary and stakeholder information
+
+### Technical Documentation
 - **System Architecture** ([architecture.html](architecture.html)) - Platform architecture and data flows
 - **Software Inventory** ([inventory.html](inventory.html)) - Complete application inventory
+- **Integration Methods** ([integrations.html](integrations.html)) - Detailed integration specifications
+- **Data Flow Analysis** ([data-flow.html](data-flow.html)) - End-to-end data journey visualization
+
+### Operations
+- **Reconciliation Process** ([reconciliation.html](reconciliation.html)) - Payment posting and reconciliation workflows
+- **Pain Points & Gaps** ([pain-points.html](pain-points.html)) - Critical operational issues and impact analysis
+- **Data Governance** ([governance.html](governance.html)) - Policies, standards, and compliance
+
+### Implementation
 - **2025 Recommendations** ([recommendations.html](recommendations.html)) - Priority implementation recommendations
+- **Implementation Roadmap** ([roadmap.html](roadmap.html)) - Quarterly 2025 implementation timeline
+- **ROI Analysis** ([roi.html](roi.html)) - Detailed financial projections and cost-benefit analysis
 
 ## Key Findings
 
@@ -56,6 +71,38 @@ This is a static HTML website that can be:
 - Deployed to any web server
 - Opened directly in a browser
 
+**Live Site**: https://dandaakhilreddy.github.io/RCM_Technical_doc/
+
+## Quality Assurance
+
+This project uses automated testing and code review tools:
+
+### CodeRabbit Integration
+- AI-powered code reviews on every pull request
+- Automated HTML validation and accessibility checks
+- Configuration: `.coderabbit.yaml`
+
+### GitHub Actions Workflows
+- **HTML Validation**: Validates all HTML files using HTMLHint
+- **Link Checker**: Verifies all internal navigation links are working
+- **Accessibility Testing**: WCAG 2.0 AA compliance checks using Pa11y
+- **Mobile Responsiveness**: Ensures proper viewport configuration
+
+All tests run automatically on push and pull requests to ensure code quality.
+
+## Development
+
+### Running Locally
+Simply open any HTML file in a modern web browser. All pages are standalone and don't require a build process.
+
+### Contributing
+1. Create a feature branch
+2. Make your changes
+3. Ensure all HTML files have proper navigation structure
+4. Push and create a pull request
+5. CodeRabbit will automatically review your code
+6. GitHub Actions will run quality checks
+
 ## License
 
 © 2025 Page Management Associates. All rights reserved.
@@ -64,3 +111,4 @@ This is a static HTML website that can be:
 
 **Last Updated**: January 2025
 **Contact**: RCM Technical Team
+**Version**: 1.0.0

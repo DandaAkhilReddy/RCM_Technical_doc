@@ -1,0 +1,115 @@
+# CodeRabbit Configuration for RCM Technical Documentation
+# https://docs.coderabbit.ai/guides/configure-coderabbit
+
+# Language and Tone
+language: en-US
+tone_instructions: "Use professional, technical language appropriate for healthcare IT documentation. Be concise and actionable."
+
+# Early Access Features
+early_access: true
+
+# Review Settings
+reviews:
+  # Enable various review features
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT REVIEW"
+      - "DRAFT"
+
+  # Path-based instructions for better context
+  path_instructions:
+    - path: "**.html"
+      instructions: |
+        Review HTML files for:
+        - Valid HTML5 structure
+        - Accessibility (ARIA labels, semantic HTML)
+        - Mobile responsiveness (proper viewport meta tags)
+        - SEO optimization (meta descriptions, titles)
+        - Broken internal links
+        - Consistent navigation structure
+        - Proper use of CSS classes
+
+    - path: "**.css"
+      instructions: |
+        Review CSS for:
+        - Consistent use of CSS variables
+        - Mobile-first responsive design
+        - Cross-browser compatibility
+        - Performance (avoid complex selectors)
+
+    - path: "**.js"
+      instructions: |
+        Review JavaScript for:
+        - ES6+ best practices
+        - Error handling
+        - Accessibility concerns
+        - Performance optimization
+        - Browser compatibility
+
+    - path: "README.md"
+      instructions: |
+        Review documentation for:
+        - Clarity and completeness
+        - Accurate technical details
+        - Proper markdown formatting
+        - Up-to-date information
+
+# Chat Settings
+chat:
+  auto_reply: true
+
+# Knowledge Base
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: global
+
+# Code Quality Checks
+checks:
+  # Enable automated checks
+  timeout_ms: 90000
+
+# Tools Configuration
+tools:
+  # GitHub Actions Integration
+  github-actions:
+    enabled: true
+
+  # Accessibility Checker
+  axe-core:
+    enabled: true
+
+  # HTML Validator
+  htmlhint:
+    enabled: true
+    rules:
+      doctype-first: true
+      doctype-html5: true
+      title-require: true
+      attr-lowercase: true
+      attr-no-duplication: true
+      tag-pair: true
+      spec-char-escape: true
+      id-unique: true
+      src-not-empty: true
+      attr-unsafe-chars: true
+
+# Ignore Patterns
+ignore:
+  - "node_modules/**"
+  - "*.min.js"
+  - "*.min.css"
+  - ".git/**"
+  - ".github/**"
+  - ".vscode/**"
+  - ".idea/**"
+  - "*.log"

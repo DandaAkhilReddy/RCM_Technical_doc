@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Pain Points & Gaps - RCM Technical Documentation">
+    <title>Pain Points & Gaps | RCM Technical Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e40af;
+            --secondary: #3730a3;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --info: #0891b2;
+            --dark: #111827;
+            --light: #f9fafb;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+
+        /* Mobile Navigation */
+        .mobile-header {
+            display: none;
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mobile-header h1 {
+            font-size: 1.2rem;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            float: right;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            background: var(--primary);
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .nav-section {
+            padding: 20px 0;
+        }
+
+        .nav-title {
+            padding: 10px 25px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 25px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .page-header .description {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        /* Pain Point Cards */
+        .pain-point-card {
+            background: #fef2f2;
+            border-left: 4px solid var(--danger);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .pain-point-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .pain-point-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--danger);
+            flex: 1;
+        }
+
+        .severity-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 15px;
+        }
+
+        .severity-critical {
+            background: var(--danger);
+            color: white;
+        }
+
+        .severity-high {
+            background: #f97316;
+            color: white;
+        }
+
+        .severity-medium {
+            background: var(--warning);
+            color: white;
+        }
+
+        .pain-point-details {
+            margin-top: 15px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            margin-bottom: 10px;
+            align-items: start;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: var(--dark);
+        }
+
+        .impact-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .impact-list li {
+            padding: 8px 0 8px 25px;
+            position: relative;
+        }
+
+        .impact-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 5px;
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        /* Category Sections */
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .category-subtitle {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* Impact Summary */
+        .impact-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .impact-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+
+        .impact-card.financial {
+            border-color: var(--danger);
+        }
+
+        .impact-card.operational {
+            border-color: var(--warning);
+        }
+
+        .impact-card.compliance {
+            border-color: #8b5cf6;
+        }
+
+        .impact-card-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .impact-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .impact-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        /* Alert Box */
+        .alert-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 60px;
+            }
+
+            .content-wrapper {
+                padding: 20px 15px;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .pain-point-header {
+                flex-direction: column;
+            }
+
+            .severity-badge {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+
+            .detail-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+
+            .impact-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Overlay for mobile menu */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        <h1>Pain Points & Gaps</h1>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" onclick="toggleMenu()"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1>RCM Technical Docs</h1>
+            <div class="subtitle">Page Management Associates</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Main</div>
+            <a href="index.html" class="nav-item">Dashboard</a>
+            <a href="overview.html" class="nav-item">Executive Overview</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Technical Documentation</div>
+            <a href="architecture.html" class="nav-item">System Architecture</a>
+            <a href="inventory.html" class="nav-item">Software Inventory</a>
+            <a href="integrations.html" class="nav-item">Integration Methods</a>
+            <a href="data-flow.html" class="nav-item">Data Flow Analysis</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Operations</div>
+            <a href="reconciliation.html" class="nav-item">Reconciliation Process</a>
+            <a href="pain-points.html" class="nav-item active">Pain Points & Gaps</a>
+            <a href="governance.html" class="nav-item">Data Governance</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Implementation</div>
+            <a href="recommendations.html" class="nav-item">2025 Recommendations</a>
+            <a href="roadmap.html" class="nav-item">Implementation Roadmap</a>
+            <a href="roi.html" class="nav-item">ROI Analysis</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Pain Points & Gaps</h1>
+                <div class="description">
+                    Critical operational issues, technical limitations, and revenue cycle vulnerabilities
+                </div>
+            </div>
+
+            <!-- Overall Impact Summary -->
+            <div class="content-section">
+                <h2 class="section-title">Cumulative Impact Analysis</h2>
+
+                <div class="impact-summary">
+                    <div class="impact-card financial">
+                        <div class="impact-card-title">Financial Impact</div>
+                        <div class="impact-value">$2.5M+</div>
+                        <div class="impact-description">Annual revenue at risk from operational inefficiencies, delayed collections, and manual errors</div>
+                    </div>
+
+                    <div class="impact-card operational">
+                        <div class="impact-card-title">Staff Time Lost</div>
+                        <div class="impact-value">60-80</div>
+                        <div class="impact-description">Hours per week consumed by manual processes that could be automated</div>
+                    </div>
+
+                    <div class="impact-card compliance">
+                        <div class="impact-card-title">Compliance Risk</div>
+                        <div class="impact-value">High</div>
+                        <div class="impact-description">Limited audit trail and manual data handling increase regulatory exposure</div>
+                    </div>
+
+                    <div class="impact-card financial">
+                        <div class="impact-card-title">Days in AR</div>
+                        <div class="impact-value">45-60</div>
+                        <div class="impact-description">Industry benchmark is 30-40 days; excessive manual processes delay collections</div>
+                    </div>
+                </div>
+
+                <div class="alert-box alert-danger">
+                    <strong>Executive Summary:</strong> The current RCM infrastructure operates at 95% manual processes with zero banking integration, creating a perfect storm of revenue leakage, operational inefficiency, and scalability constraints. Immediate intervention required to prevent continued financial hemorrhaging.
+                </div>
+            </div>
+
+            <!-- Integration & Technical Gaps -->
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">Integration & Technical Gaps</div>
+                    <div class="category-subtitle">System connectivity limitations and integration failures</div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">1. Zero Bank Integration</div>
+                        <span class="severity-badge severity-critical">CRITICAL</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">No automated connection between banking systems and AdvancedMD. All bank deposit data must be manually downloaded and processed via Excel.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>15-20 hours/week manual reconciliation effort</li>
+                                    <li>15-30 day delay in payment posting</li>
+                                    <li>Estimated $50K-$100K/year in missed/delayed payment identification</li>
+                                    <li>No real-time cash flow visibility</li>
+                                    <li>High error rate in manual matching (70-80% accuracy)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">No API integration between bank (likely commercial bank) and AdvancedMD. Manual CSV download is only available method.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Financial Risk:</div>
+                            <div class="detail-value">$150,000 - $200,000 annual impact (labor + revenue leakage)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">2. 24-Hour ADT Sync Delay (Meditech to IngeniousMed)</div>
+                        <span class="severity-badge severity-high">HIGH</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">Census data from Meditech hospital systems syncs to IngeniousMed only once daily via file export, creating 24-hour lag in patient admission data.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>Providers document visits before patient appears in system</li>
+                                    <li>Creates duplicate patient entries and charge capture errors</li>
+                                    <li>Delays charge capture by 1-2 days</li>
+                                    <li>Increases claim submission delays</li>
+                                    <li>Generates rework and reconciliation burden</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">AdvancedMD does NOT support HL7 format; Meditech can only export via batch file. No real-time integration possible with current stack.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Financial Risk:</div>
+                            <div class="detail-value">$30,000 - $50,000 annual impact (delayed billing + rework)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">3. No HL7 Support in AdvancedMD</div>
+                        <span class="severity-badge severity-critical">CRITICAL</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">AdvancedMD billing system does not support HL7 interface standard, severely limiting real-time integration capabilities with clinical systems.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>Cannot receive real-time ADT feeds from Meditech</li>
+                                    <li>Blocks modern integration architectures</li>
+                                    <li>Forces reliance on file-based batch processes</li>
+                                    <li>Prevents future-state automation opportunities</li>
+                                    <li>Creates strategic platform limitation</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">Platform architecture limitation. AdvancedMD is billing-focused, not designed for deep clinical integration.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Strategic Risk:</div>
+                            <div class="detail-value">Major barrier to modernization; may require platform replacement</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">4. No Patient Portal Payment Integration</div>
+                        <span class="severity-badge severity-medium">MEDIUM</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">Patient payments made via online portal require manual reconciliation. No automatic posting from payment gateway to billing system.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>200-300 monthly patient payments require manual entry</li>
+                                    <li>10-12 hours/week staff time</li>
+                                    <li>Payment posting delays of 7-14 days</li>
+                                    <li>Patient confusion over account status</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Financial Risk:</div>
+                            <div class="detail-value">$25,000 - $40,000 annual impact (labor costs)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operational Process Gaps -->
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">Operational Process Gaps</div>
+                    <div class="category-subtitle">Manual workflows and process inefficiencies</div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">5. Manual ERA-to-Deposit Reconciliation</div>
+                        <span class="severity-badge severity-critical">CRITICAL</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">Despite receiving automated 835 ERA files, staff must manually match ERA payment amounts to actual bank deposits using Excel spreadsheets.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>15-20 hours/week of manual Excel work</li>
+                                    <li>High error rate (missed matches, incorrect posting)</li>
+                                    <li>Monthly variance typically $5,000-$15,000</li>
+                                    <li>3-5 days consumed during month-end close</li>
+                                    <li>Prevents staff from higher-value AR work</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">No bank integration + no automated matching logic = complete manual process</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Financial Risk:</div>
+                            <div class="detail-value">$80,000 - $120,000 annual impact</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">6. Paper Check & EOB Manual Processing</div>
+                        <span class="severity-badge severity-high">HIGH</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">100-150 paper checks per month received with paper EOBs require 100% manual data entry. No OCR, no automation, no lockbox service.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>5-15 minutes per check for manual data entry</li>
+                                    <li>12-20 hours/month consumed</li>
+                                    <li>High error rate in manual transcription</li>
+                                    <li>Extended posting delays</li>
+                                    <li>Physical check handling inefficiency</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">No lockbox service, no OCR capability, no automated check processing workflow</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Financial Risk:</div>
+                            <div class="detail-value">$40,000 - $60,000 annual impact</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">7. Manual Duplicate Detection & Prevention</div>
+                        <span class="severity-badge severity-high">HIGH</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">No automated duplicate detection between Meditech census import and provider charge entry in IngeniousMed. Staff manually identifies and merges duplicates.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>Duplicate patient entries created frequently</li>
+                                    <li>Charges posted to wrong patient records</li>
+                                    <li>Claim rejections due to duplicate submissions</li>
+                                    <li>Staff time consumed on cleanup activities</li>
+                                    <li>Billing delays while resolving duplicates</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">24-hour sync delay + no real-time matching logic + manual provider entry</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Financial Risk:</div>
+                            <div class="detail-value">$20,000 - $35,000 annual impact</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">8. Limited Real-Time Reporting & Analytics</div>
+                        <span class="severity-badge severity-high">HIGH</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">Delayed payment posting and manual processes prevent accurate real-time revenue reporting and cash flow forecasting.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>Cannot accurately report daily/weekly revenue</li>
+                                    <li>Cash flow forecasting unreliable</li>
+                                    <li>Management decisions based on stale data</li>
+                                    <li>Inability to identify trending issues quickly</li>
+                                    <li>Limited operational intelligence</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">15-30 day posting delay + manual data gaps + fragmented systems</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Strategic Risk:</div>
+                            <div class="detail-value">High - Cannot manage what you cannot measure in real-time</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scalability & Growth Constraints -->
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">Scalability & Growth Constraints</div>
+                    <div class="category-subtitle">Barriers to volume growth and operational expansion</div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">9. Manual Processes Cannot Scale</div>
+                        <span class="severity-badge severity-critical">CRITICAL</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">Current 95% manual process model requires linear staffing increases to handle volume growth. Every 10% patient volume increase requires proportional staff expansion.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>Cannot scale efficiently with practice growth</li>
+                                    <li>Every new facility requires additional FTE support</li>
+                                    <li>Revenue growth offset by proportional cost increases</li>
+                                    <li>Competitive disadvantage vs automated competitors</li>
+                                    <li>Staff burnout from repetitive manual work</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">Fundamental lack of automation across entire revenue cycle</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Strategic Risk:</div>
+                            <div class="detail-value">Critical - Limits organizational growth potential</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">10. No Data Warehouse or Centralized Analytics</div>
+                        <span class="severity-badge severity-medium">MEDIUM</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">No centralized data warehouse to aggregate clinical, billing, and financial data for comprehensive analytics and reporting.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>Fragmented reporting across multiple systems</li>
+                                    <li>Cannot perform advanced analytics or trending</li>
+                                    <li>Difficult to identify root causes of issues</li>
+                                    <li>Limited business intelligence capabilities</li>
+                                    <li>Manual report aggregation required</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">No data integration layer or warehouse infrastructure</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Strategic Risk:</div>
+                            <div class="detail-value">Medium - Limits data-driven decision making capability</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Compliance & Audit Concerns -->
+            <div class="category-section">
+                <div class="category-header">
+                    <div class="category-title">Compliance & Audit Concerns</div>
+                    <div class="category-subtitle">Regulatory and audit trail vulnerabilities</div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">11. Limited Audit Trail for Manual Processes</div>
+                        <span class="severity-badge severity-high">HIGH</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">Manual Excel-based reconciliation and data entry creates minimal audit trail for financial transactions and corrections.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>Difficult to trace payment matching decisions</li>
+                                    <li>Limited ability to audit manual corrections</li>
+                                    <li>Compliance risk during external audits</li>
+                                    <li>Cannot reconstruct historical reconciliations</li>
+                                    <li>Increased regulatory exposure</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">Excel-based workflows instead of system-based processes with built-in audit logging</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Compliance Risk:</div>
+                            <div class="detail-value">High - Insufficient audit trail for financial controls</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pain-point-card">
+                    <div class="pain-point-header">
+                        <div class="pain-point-title">12. AR Aging Beyond Industry Benchmarks</div>
+                        <span class="severity-badge severity-high">HIGH</span>
+                    </div>
+                    <div class="pain-point-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Problem:</div>
+                            <div class="detail-value">Days in AR averaging 45-60 days vs industry benchmark of 30-40 days, indicating collection process inefficiencies.</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Impact:</div>
+                            <div class="detail-value">
+                                <ul class="impact-list">
+                                    <li>Delayed cash flow and working capital constraints</li>
+                                    <li>Increased bad debt write-off risk</li>
+                                    <li>Higher aged AR requiring more follow-up resources</li>
+                                    <li>Opportunity cost of delayed collections</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Root Cause:</div>
+                            <div class="detail-value">Manual processes delay billing, payment posting, and AR follow-up</div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Financial Risk:</div>
+                            <div class="detail-value">$200,000 - $350,000 annual impact (working capital + bad debt)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Close menu when clicking on a nav item on mobile
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const sidebar = document.querySelector('.sidebar');
+                    const overlay = document.querySelector('.overlay');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

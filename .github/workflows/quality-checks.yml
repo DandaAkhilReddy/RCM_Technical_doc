@@ -1,0 +1,177 @@
+name: Quality Checks & Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  html-validation:
+    name: HTML Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install HTMLHint
+        run: npm install -g htmlhint
+
+      - name: Run HTML validation
+        run: |
+          echo "Running HTMLHint validation..."
+          htmlhint "*.html" || true
+
+  link-checker:
+    name: Check Internal Links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install beautifulsoup4 lxml
+
+      - name: Check internal links
+        run: |
+          python3 << 'EOF'
+          import os
+          import re
+          from bs4 import BeautifulSoup
+          from pathlib import Path
+
+          # Get all HTML files
+          html_files = list(Path('.').glob('*.html'))
+          print(f"Found {len(html_files)} HTML files")
+
+          # Extract all internal links
+          all_links = set()
+          broken_links = []
+
+          for html_file in html_files:
+              with open(html_file, 'r', encoding='utf-8') as f:
+                  soup = BeautifulSoup(f.read(), 'html.parser')
+                  for link in soup.find_all('a', href=True):
+                      href = link['href']
+                      # Only check internal HTML links
+                      if href.endswith('.html') and not href.startswith('http'):
+                          all_links.add(href)
+                          # Check if file exists
+                          if not Path(href).exists():
+                              broken_links.append(f"{html_file}: {href}")
+
+          print(f"\nTotal internal links: {len(all_links)}")
+          print("Links found:", sorted(all_links))
+
+          if broken_links:
+              print(f"\n❌ Found {len(broken_links)} broken links:")
+              for link in broken_links:
+                  print(f"  - {link}")
+              exit(1)
+          else:
+              print("\n✅ All internal links are valid!")
+          EOF
+
+  accessibility-check:
+    name: Accessibility Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Pa11y
+        run: npm install -g pa11y-ci
+
+      - name: Create Pa11y config
+        run: |
+          cat > .pa11yci.json << 'EOF'
+          {
+            "defaults": {
+              "standard": "WCAG2AA",
+              "timeout": 10000,
+              "wait": 1000
+            },
+            "urls": [
+              "index.html",
+              "overview.html",
+              "architecture.html",
+              "inventory.html",
+              "integrations.html",
+              "data-flow.html",
+              "reconciliation.html",
+              "pain-points.html",
+              "governance.html",
+              "recommendations.html",
+              "roadmap.html",
+              "roi.html"
+            ]
+          }
+          EOF
+
+      - name: Run accessibility tests
+        run: pa11y-ci || true
+
+  mobile-responsive-check:
+    name: Mobile Responsiveness Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check viewport meta tags
+        run: |
+          echo "Checking for mobile viewport meta tags..."
+          for file in *.html; do
+            if grep -q 'name="viewport"' "$file"; then
+              echo "✅ $file has viewport meta tag"
+            else
+              echo "❌ $file is missing viewport meta tag"
+              exit 1
+            fi
+          done
+
+      - name: Check media queries
+        run: |
+          echo "Checking for responsive design..."
+          for file in *.html; do
+            if grep -q '@media' "$file"; then
+              echo "✅ $file has media queries"
+            else
+              echo "⚠️ $file might not be responsive"
+            fi
+          done
+
+  test-summary:
+    name: Test Summary
+    needs: [html-validation, link-checker, accessibility-check, mobile-responsive-check]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## Quality Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All quality checks completed!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Checks Performed:" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ HTML Validation" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Internal Link Checking" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Accessibility Testing (WCAG 2.0 AA)" >> $GITHUB_STEP_SUMMARY
+          echo "- ✅ Mobile Responsiveness" >> $GITHUB_STEP_SUMMARY

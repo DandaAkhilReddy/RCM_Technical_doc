@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Reconciliation Process - RCM Technical Documentation">
+    <title>Reconciliation Process | RCM Technical Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1e40af;
+            --secondary: #3730a3;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+            --info: #0891b2;
+            --dark: #111827;
+            --light: #f9fafb;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+
+        /* Mobile Navigation */
+        .mobile-header {
+            display: none;
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mobile-header h1 {
+            font-size: 1.2rem;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            float: right;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 30px 25px;
+            background: var(--primary);
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .nav-section {
+            padding: 20px 0;
+        }
+
+        .nav-title {
+            padding: 10px 25px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 12px 25px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--light);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background: #eff6ff;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 30px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .page-header .description {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        /* Process Flow */
+        .process-flow {
+            display: grid;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .process-step {
+            background: var(--light);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid;
+            position: relative;
+        }
+
+        .process-step.automated {
+            border-color: var(--success);
+        }
+
+        .process-step.manual {
+            border-color: var(--danger);
+        }
+
+        .process-step.semi-auto {
+            border-color: var(--warning);
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .step-title {
+            flex: 1;
+            margin-left: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .step-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-automated {
+            background: #dcfce7;
+            color: var(--success);
+        }
+
+        .badge-manual {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .badge-semi {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .step-content {
+            margin-top: 15px;
+        }
+
+        .step-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 0.95rem;
+            color: var(--dark);
+        }
+
+        /* Issue List */
+        .issue-list {
+            margin-top: 20px;
+        }
+
+        .issue-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--danger);
+        }
+
+        .issue-title {
+            font-weight: 600;
+            color: var(--danger);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .issue-impact {
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        .impact-tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .impact-high {
+            background: #fee2e2;
+            color: var(--danger);
+        }
+
+        .impact-medium {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        /* Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        /* Alert Box */
+        .alert-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-danger {
+            background: #fef2f2;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border-color: var(--warning);
+            color: #92400e;
+        }
+
+        .alert-info {
+            background: #f0f9ff;
+            border-color: var(--info);
+            color: #075985;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 60px;
+            }
+
+            .content-wrapper {
+                padding: 20px 15px;
+            }
+
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .step-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .step-title {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+
+            .step-badge {
+                margin-top: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Overlay for mobile menu */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        <h1>Reconciliation Process</h1>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" onclick="toggleMenu()"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h1>RCM Technical Docs</h1>
+            <div class="subtitle">Page Management Associates</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Main</div>
+            <a href="index.html" class="nav-item">Dashboard</a>
+            <a href="overview.html" class="nav-item">Executive Overview</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Technical Documentation</div>
+            <a href="architecture.html" class="nav-item">System Architecture</a>
+            <a href="inventory.html" class="nav-item">Software Inventory</a>
+            <a href="integrations.html" class="nav-item">Integration Methods</a>
+            <a href="data-flow.html" class="nav-item">Data Flow Analysis</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Operations</div>
+            <a href="reconciliation.html" class="nav-item active">Reconciliation Process</a>
+            <a href="pain-points.html" class="nav-item">Pain Points & Gaps</a>
+            <a href="governance.html" class="nav-item">Data Governance</a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Implementation</div>
+            <a href="recommendations.html" class="nav-item">2025 Recommendations</a>
+            <a href="roadmap.html" class="nav-item">Implementation Roadmap</a>
+            <a href="roi.html" class="nav-item">ROI Analysis</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Reconciliation Process</h1>
+                <div class="description">
+                    Payment posting, ERA verification, and bank reconciliation workflows
+                </div>
+            </div>
+
+            <!-- Current State Overview -->
+            <div class="content-section">
+                <h2 class="section-title">Current State Statistics</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">Manual Processing</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">40-50</div>
+                        <div class="stat-label">Hours/Month on Reconciliation</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Bank System Integrations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">800+</div>
+                        <div class="stat-label">Monthly Bank Transactions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">15-30</div>
+                        <div class="stat-label">Days Average Posting Delay</div>
+                    </div>
+                </div>
+
+                <div class="alert-box alert-danger">
+                    <strong>Critical Issue:</strong> Zero bank integration forces complete manual reconciliation of all payments. This creates significant revenue leakage risk and prevents real-time cash flow visibility.
+                </div>
+            </div>
+
+            <!-- Payment Posting Process -->
+            <div class="content-section">
+                <h2 class="section-title">Payment Posting Workflow</h2>
+
+                <div class="process-flow">
+                    <div class="process-step automated">
+                        <div class="step-header">
+                            <div class="step-number">1</div>
+                            <div class="step-title">ERA Receipt from Clearinghouse</div>
+                            <span class="step-badge badge-automated">Automated</span>
+                        </div>
+                        <div class="step-content">
+                            <p>Electronic Remittance Advice (835 EDI) automatically imported into AdvancedMD from McKesson RelayHealth clearinghouse.</p>
+                            <div class="step-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Source</div>
+                                    <div class="detail-value">McKesson RelayHealth</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Format</div>
+                                    <div class="detail-value">835 EDI</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Frequency</div>
+                                    <div class="detail-value">Real-time as received</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Auto-Posting</div>
+                                    <div class="detail-value">Enabled (with rules)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="process-step semi-auto">
+                        <div class="step-header">
+                            <div class="step-number">2</div>
+                            <div class="step-title">ERA Auto-Posting to Patient Accounts</div>
+                            <span class="step-badge badge-semi">Semi-Automated</span>
+                        </div>
+                        <div class="step-content">
+                            <p>AdvancedMD attempts to auto-post ERA payments to patient accounts using matching rules. Requires manual review and intervention for exceptions.</p>
+                            <div class="step-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Success Rate</div>
+                                    <div class="detail-value">70-80% auto-posted</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Exceptions</div>
+                                    <div class="detail-value">20-30% require manual review</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Common Issues</div>
+                                    <div class="detail-value">Partial payments, denials, adjustments</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Staff Time</div>
+                                    <div class="detail-value">10-15 hours/week</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="process-step manual">
+                        <div class="step-header">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Bank Deposit Download (Manual)</div>
+                            <span class="step-badge badge-manual">100% Manual</span>
+                        </div>
+                        <div class="step-content">
+                            <p>Staff manually logs into bank portal daily to download deposit reports. No API or automated feed available.</p>
+                            <div class="step-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Method</div>
+                                    <div class="detail-value">Manual portal login</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Export Format</div>
+                                    <div class="detail-value">CSV/Excel download</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Frequency</div>
+                                    <div class="detail-value">Daily (when remembered)</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Time Required</div>
+                                    <div class="detail-value">30-45 min/day</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="process-step manual">
+                        <div class="step-header">
+                            <div class="step-number">4</div>
+                            <div class="step-title">ERA-to-Deposit Matching (Manual Excel)</div>
+                            <span class="step-badge badge-manual">100% Manual</span>
+                        </div>
+                        <div class="step-content">
+                            <p>Critical manual step: Staff manually matches ERA amounts to actual bank deposits using Excel spreadsheets. This is the primary bottleneck and error source.</p>
+                            <div class="step-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Tool Used</div>
+                                    <div class="detail-value">Microsoft Excel</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Matching Method</div>
+                                    <div class="detail-value">Visual comparison, VLOOKUP</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Time Required</div>
+                                    <div class="detail-value">15-20 hours/week</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Error Rate</div>
+                                    <div class="detail-value">High (missed matches common)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="process-step manual">
+                        <div class="step-header">
+                            <div class="step-number">5</div>
+                            <div class="step-title">Paper Check Processing (Manual)</div>
+                            <span class="step-badge badge-manual">100% Manual</span>
+                        </div>
+                        <div class="step-content">
+                            <p>Paper checks and EOBs received by mail require complete manual data entry. No OCR or automated processing available.</p>
+                            <div class="step-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Volume</div>
+                                    <div class="detail-value">100-150 checks/month</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Processing</div>
+                                    <div class="detail-value">Manual data entry</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">EOB Handling</div>
+                                    <div class="detail-value">Manual line-by-line entry</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Time/Check</div>
+                                    <div class="detail-value">5-15 minutes each</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="process-step manual">
+                        <div class="step-header">
+                            <div class="step-number">6</div>
+                            <div class="step-title">Patient Payment Posting (Manual)</div>
+                            <span class="step-badge badge-manual">100% Manual</span>
+                        </div>
+                        <div class="step-content">
+                            <p>Patient payments received via check, cash, or credit card require manual posting. No integration with payment processors.</p>
+                            <div class="step-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Payment Methods</div>
+                                    <div class="detail-value">Check, Cash, CC (portal)</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Processing</div>
+                                    <div class="detail-value">Individual manual entry</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Volume</div>
+                                    <div class="detail-value">200-300/month</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Time Required</div>
+                                    <div class="detail-value">10-12 hours/week</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="process-step manual">
+                        <div class="step-header">
+                            <div class="step-number">7</div>
+                            <div class="step-title">Final Reconciliation & Reporting</div>
+                            <span class="step-badge badge-manual">100% Manual</span>
+                        </div>
+                        <div class="step-content">
+                            <p>Monthly reconciliation to ensure all deposits match posted payments. Discrepancies investigated manually.</p>
+                            <div class="step-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Frequency</div>
+                                    <div class="detail-value">Monthly close</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Tool</div>
+                                    <div class="detail-value">Excel reconciliation</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Typical Variance</div>
+                                    <div class="detail-value">$5,000-$15,000/month</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Resolution Time</div>
+                                    <div class="detail-value">3-5 days for month-end</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Critical Issues -->
+            <div class="content-section">
+                <h2 class="section-title">Critical Process Issues</h2>
+
+                <div class="issue-list">
+                    <div class="issue-item">
+                        <div class="issue-title">1. No Bank Integration
+                            <span class="impact-tag impact-high">HIGH IMPACT</span>
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Impact:</strong> Requires 15-20 hours/week of manual Excel matching between ERA data and bank deposits. High error rate and missed payments.
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Revenue Risk:</strong> Estimated $50,000-$100,000/year in missed or delayed payment identification
+                        </div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-title">2. Paper Check Dependency
+                            <span class="impact-tag impact-high">HIGH IMPACT</span>
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Impact:</strong> 100-150 paper checks per month require complete manual entry. No OCR, no automation, no integration with lockbox services.
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Staff Time:</strong> 12-20 hours/month on data entry alone
+                        </div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-title">3. Delayed Payment Visibility
+                            <span class="impact-tag impact-high">HIGH IMPACT</span>
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Impact:</strong> 15-30 day lag between bank deposit and system posting prevents accurate cash flow forecasting and working capital management.
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Business Risk:</strong> Cannot accurately report daily or weekly revenue performance
+                        </div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-title">4. Patient Payment Processing
+                            <span class="impact-tag impact-medium">MEDIUM IMPACT</span>
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Impact:</strong> No integration with online payment processors. Patient portal payments require manual reconciliation.
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Time Cost:</strong> 10-12 hours/week on patient payment posting
+                        </div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-title">5. Month-End Reconciliation Burden
+                            <span class="impact-tag impact-high">HIGH IMPACT</span>
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Impact:</strong> Monthly close requires 3-5 days of intensive reconciliation work. Typical variance of $5,000-$15,000 must be manually investigated.
+                        </div>
+                        <div class="issue-impact">
+                            <strong>Efficiency Loss:</strong> Staff cannot focus on other RCM activities during month-end
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-box alert-warning">
+                    <strong>Automation Opportunity:</strong> With proper bank API integration and RPA deployment, 70-80% of current manual reconciliation work could be eliminated, freeing up 30-40 hours per month for higher-value activities like denial management and AR follow-up.
+                </div>
+            </div>
+
+            <!-- Recommended Improvements -->
+            <div class="content-section">
+                <h2 class="section-title">Recommended Process Improvements</h2>
+
+                <div class="process-flow">
+                    <div class="process-step automated">
+                        <div class="step-header">
+                            <div class="step-title">Bank API Integration</div>
+                            <span class="step-badge badge-automated">Target: Automated</span>
+                        </div>
+                        <div class="step-content">
+                            <p><strong>Solution:</strong> Implement direct bank API integration (Plaid, Finicity, or bank-native API) to automatically import daily deposits into AdvancedMD or reconciliation middleware.</p>
+                            <p><strong>Time Savings:</strong> 15-20 hours/week</p>
+                            <p><strong>ROI Timeline:</strong> 3-6 months</p>
+                        </div>
+                    </div>
+
+                    <div class="process-step automated">
+                        <div class="step-header">
+                            <div class="step-title">RPA for ERA-Deposit Matching</div>
+                            <span class="step-badge badge-automated">Target: Automated</span>
+                        </div>
+                        <div class="step-content">
+                            <p><strong>Solution:</strong> Deploy RPA bot to automatically match ERA amounts to bank deposits using intelligent matching algorithms (exact match, fuzzy match, batch totals).</p>
+                            <p><strong>Time Savings:</strong> 10-15 hours/week</p>
+                            <p><strong>Accuracy Improvement:</strong> 95%+ match rate vs 70-80% manual</p>
+                        </div>
+                    </div>
+
+                    <div class="process-step automated">
+                        <div class="step-header">
+                            <div class="step-title">Lockbox Service with OCR</div>
+                            <span class="step-badge badge-automated">Target: Automated</span>
+                        </div>
+                        <div class="step-content">
+                            <p><strong>Solution:</strong> Implement lockbox service with EOB scanning and OCR to automatically process paper checks and remittances.</p>
+                            <p><strong>Time Savings:</strong> 12-20 hours/month</p>
+                            <p><strong>Cost:</strong> $0.50-$1.00 per item vs manual labor cost</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert-box alert-info">
+                    <strong>Implementation Priority:</strong> Bank API integration should be the #1 priority for 2025. This single improvement addresses the largest manual burden and provides foundation for further automation opportunities.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // Close menu when clicking on a nav item on mobile
+        if (window.innerWidth <= 768) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const sidebar = document.querySelector('.sidebar');
+                    const overlay = document.querySelector('.overlay');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                });
+            });
+        }
+    </script>
+</body>
+</html>
